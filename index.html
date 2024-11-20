@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced To-Do List</title>
+
+  <!-- Google Font (AJEX font family) -->
+  <link href="https://fonts.googleapis.com/css2?family=Ajex&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome (Icons) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+  <style>
+    /* Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Ajex', sans-serif;
+      background-color: #121212;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Dark Mode Styles */
+    body.dark-mode {
+      background-color: #121212;
+      color: #fff;
+    }
+
+    /* Light Mode Styles */
+    body.light-mode {
+      background-color: #f1f1f1;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      color: #ff6347;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    h1 i {
+      margin-right: 10px;
+    }
+
+    h1:hover {
+      transform: scale(1.1);
+    }
+
+    /* Navbar Styles */
+    .navbar {
+      background-color: #333;
+      padding: 15px 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .navbar ul {
+      display: flex;
+      list-style-type: none;
+      margin: 0;
+    }
+
+    .navbar ul li {
+      margin: 0 20px;
+    }
+
+    .navbar ul li a {
+      text-decoration: none;
+      color: #fff;
+      font-size: 18px;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+
+    .navbar ul li a:hover {
+      color: #ff6347;
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      color: #ff6347;
+    }
+
+    /* Main Container */
+    .todo-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 30px;
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+      transition: background-color 0.3s ease;
+    }
+
+    /* Input and Button Container */
+    .input-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"], input[type="date"], select {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background-color: #2f2f2f;
+      color: #fff;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      width: 100%;
+    }
+
+    input[type="text"]:focus, input[type="date"]:focus, select:focus {
+      outline: none;
+      border-color: #ff6347;
+    }
+
+    button {
+      background-color: #ff6347;
+      border: none;
+      padding: 12px 18px;
+      font-size: 18px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e5533b;
+      transform: scale(1.1);
+    }
+
+    button:active {
+      transform: scale(1);
+    }
+
+    /* Task List Styles */
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #333;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    li:hover {
+      background-color: #444;
+    }
+
+    li.completed {
+      background-color: #4caf50;
+      text-decoration: line-through;
+    }
+
+    li .priority-low {
+      color: #28a745;
+    }
+
+    li .priority-medium {
+      color: #ffc107;
+    }
+
+    li .priority-high {
+      color: #dc3545;
+    }
+
+    li i {
+      margin-left: 10px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    li i:hover {
+      color: #ff6347;
+    }
+
+    li .edit-btn {
+      color: #ff6347;
+    }
+
+    li .delete-btn {
+      color: #f44336;
+    }
+
+    /* Footer Styles */
+    footer {
+      text-align: center;
+      background-color: #333;
+      color: #fff;
+      padding: 15px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <ul id="navbar-links">
+      <li><a href="#" class="nav-link" id="home-link">Home</a></li>
+      <li><a href="#about" class="nav-link" id="about-link">About</a></li>
+      <li><a href="#contact" class="nav-link" id="contact-link">Contact</a></li>
+      <li><a href="#help" class="nav-link" id="help-link">Help</a></li>
+    </ul>
+    <button id="theme-toggle-btn" class="theme-toggle-btn"><i class="fas fa-moon"></i></button>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="todo-container">
+    <h1><i class="fas fa-check-circle"></i> My To-Do List</h1>
+    <div class="input-container">
+      <input type="text" id="task-input" placeholder="What needs to be done?" autofocus>
+      <select id="category-select">
+        <option value="Work">Work</option>
+        <option value="Personal">Personal</option>
+        <option value="Urgent">Urgent</option>
+        <option value="Others">Others</option>
+      </select>
+      <div>
+        <p>Due Date</p>
+        <input type="date" id="due-date">
+      </div>
+      <button id="add-task-btn"><i class="fas fa-plus"></i> Add Task</button>
+    </div>
+
+    <ul id="task-list"></ul>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2024 Professional To-Do List | Made with ❤</p>
+  </footer>
+
+  <script>
+    // DOM Elements
+    const taskInput = document.getElementById("task-input");
+    const addTaskButton = document.getElementById("add-task-btn");
+    const taskList = document.getElementById("task-list");
+    const categorySelect = document.getElementById("category-select");
+    const dueDateInput = document.getElementById("due-date");
+    const themeToggleButton = document.getElementById("theme-toggle-btn");
+    const navbarLinks = document.querySelectorAll('.nav-link');
+
+    // Load tasks from localStorage
+    document.addEventListener("DOMContentLoaded", loadTasks);
+
+    // Theme toggle functionality
+    themeToggleButton.addEventListener("click", toggleTheme);
+
+    function toggleTheme() {
+      const currentTheme = document.body.classList.contains("dark-mode") ? "dark" : "light";
+      document.body.classList.toggle("dark-mode");
+      document.body.classList.toggle("light-mode");
+
+      // Change theme toggle icon
+      if (currentTheme === "dark") {
+        themeToggleButton.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        themeToggleButton.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+    }
+
+    // Navbar link click handler
+    navbarLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        navbarLinks.forEach(link => link.classList.remove('active'));
+        link.classList.add('active');
+      });
+    });
+
+    // Add new task
+    addTaskButton.addEventListener("click", function() {
+      const taskText = taskInput.value.trim();
+      const category = categorySelect.value;
+      const dueDate = dueDateInput.value;
+      
+      if (taskText) {
+        addTask(taskText, category, dueDate);
+        taskInput.value = "";
+        categorySelect.value = "Work";
+        dueDateInput.value = "";
+      }
+    });
+
+    taskList.addEventListener("click", handleTaskActions);
+
+    function loadTasks() {
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.forEach(task => {
+        createTaskElement(task.text, task.completed, task.category, task.dueDate, task.priority);
+      });
+    }
+
+    function addTask(text, category, dueDate) {
+      const task = {
+        text: text,
+        completed: false,
+        category: category,
+        dueDate: dueDate,
+        priority: 'Medium' // Default priority
+      };
+
+      // Save to localStorage
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.push(task);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+
+      // Add to DOM
+      createTaskElement(text, false, category, dueDate, 'Medium');
+    }
+
+    function createTaskElement(text, completed, category, dueDate, priority) {
+      const li = document.createElement("li");
+      li.classList.toggle("completed", completed);
+
+      const taskText = document.createElement("span");
+      taskText.innerText = text;
+      li.appendChild(taskText);
+
+      const priorityClass = priority-${priority.toLowerCase()};
+      li.classList.add(priorityClass);
+
+      // Task Category
+      const categoryLabel = document.createElement("span");
+      categoryLabel.innerText = category;
+      li.appendChild(categoryLabel);
+
+      // Task Due Date
+      if (dueDate) {
+        const dueDateLabel = document.createElement("span");
+        dueDateLabel.innerText = Due: ${new Date(dueDate).toLocaleDateString()};
+        li.appendChild(dueDateLabel);
+      }
+
+      // Complete button
+      const completeButton = document.createElement("i");
+      completeButton.classList.add("fas", "fa-check");
+      li.appendChild(completeButton);
+
+      // Edit button
+      const editButton = document.createElement("i");
+      editButton.classList.add("fas", "fa-edit");
+      li.appendChild(editButton);
+
+      // Delete button
+      const deleteButton = document.createElement("i");
+      deleteButton.classList.add("fas", "fa-trash");
+      li.appendChild(deleteButton);
+
+      taskList.appendChild(li);
+    }
+
+    function handleTaskActions(event) {
+      const button = event.target;
+      const li = button.closest("li");
+      const taskText = li.querySelector("span").innerText;
+
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+      // Handle complete action
+      if (button.classList.contains("fa-check")) {
+        li.classList.toggle("completed");
+        updateTaskInLocalStorage(taskText, "completed", li.classList.contains("completed"));
+      }
+
+      // Handle edit action
+      if (button.classList.contains("fa-edit")) {
+        const newTaskText = prompt("Edit Task:", taskText);
+        if (newTaskText !== null && newTaskText.trim() !== "") {
+          li.querySelector("span").innerText = newTaskText;
+          updateTaskInLocalStorage(taskText, "text", newTaskText);
+        }
+      }
+
+      // Handle delete action
+      if (button.classList.contains("fa-trash")) {
+        li.remove();
+        removeTaskFromLocalStorage(taskText);
+      }
+    }
+
+    function updateTaskInLocalStorage(oldText, key, value) {
+      let tasks = JSON.parse(localStorage.getItem("tasks"));
+      tasks = tasks.map(task => {
+        if (task.text === oldText) {
+          task[key] = value;
+        }
+        return task;
+      });
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function removeTaskFromLocalStorage(text) {
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      const updatedTasks = tasks.filter(task => task.text !== text);
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    }
+  </script>
+</body>
+</html>
